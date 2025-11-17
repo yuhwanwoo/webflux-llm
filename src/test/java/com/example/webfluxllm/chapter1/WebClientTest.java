@@ -1,21 +1,21 @@
-package com.example.webfluxllm;
+package com.example.webfluxllm.chapter1;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
-import reactor.core.scheduler.Schedulers;
 
 @SpringBootTest
-public class SubscriberPublisherAsyncTest {
+public class WebClientTest {
+
+    private WebClient webClient = WebClient.builder().build();
 
     @Test
-    void produceOneToNineFlux() {
-        Flux<Integer> intFlux = Flux.<Integer>create(sink -> {
-            for (int i = 1; i <= 9; i++) {
-                sink.next(i);
-            }
-            sink.complete();
-        }).subscribeOn(Schedulers.boundedElastic());
+    public void testWebClient() {
+        Flux<Integer> intFlux = webClient.get()
+                        .uri("http://localhost:8080/reactive/onenine/flux")
+                                .retrieve()
+                                        .bodyToFlux(Integer.class);
 
         intFlux.subscribe(data -> {
                     System.out.println("처리되고 있는 스레이 이름: " + Thread.currentThread().getName());
