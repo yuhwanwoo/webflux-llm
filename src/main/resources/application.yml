@@ -1,0 +1,7 @@
+logging:
+  level:
+    root: INFO
+
+llm:
+  gpt:
+    key: ${GPT_API_KEY}
