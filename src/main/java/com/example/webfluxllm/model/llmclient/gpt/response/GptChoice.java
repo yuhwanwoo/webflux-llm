@@ -7,20 +7,16 @@ import lombok.Setter;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Setter
 @Getter
-public class GptChatResponseDto implements Serializable {
+public class GptChoice implements Serializable {
 
     @Serial
-    private static final long serialVersionUID = 8873793756511721146L;
+    private static final long serialVersionUID = -5305114566331006810L;
 
-    private List<GptChoice> choices;
-
-    public GptChoice getSingleChoice() {
-        return choices.stream().findFirst().orElseThrow();
-    }
+    private String finishReason;
+    private GptResponseMessageDto message;
 }

@@ -1,5 +1,6 @@
 package com.example.webfluxllm.model.llmclient;
 
+import com.example.webfluxllm.model.llmclient.gpt.response.GptChatResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,4 +18,8 @@ public class LlmChatResponseDto implements Serializable {
     private static final long serialVersionUID = -4108112449093530823L;
 
     private String llmResponse;
+
+    public LlmChatResponseDto(GptChatResponseDto gptChatResponseDto) {
+        this.llmResponse = gptChatResponseDto.getSingleChoice().getMessage().getContent();
+    }
 }
