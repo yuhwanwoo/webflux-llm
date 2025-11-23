@@ -1,0 +1,15 @@
+package com.example.webfluxllm.model.llmclient.gemini;
+
+import com.fasterxml.jackson.annotation.JsonValue;
+
+public enum GeminiMessageRole {
+    USER,
+    MODEL,
+    ;
+
+    @JsonValue
+    @Override
+    public String toString() {
+        return this.name().toLowerCase();
+    }
+}

@@ -5,3 +5,5 @@ logging:
 llm:
   gpt:
     key: ${GPT_API_KEY}
+  gemini:
+    key: test
