@@ -6,11 +6,14 @@ import com.example.webfluxllm.model.llmclient.LlmType;
 import com.example.webfluxllm.model.llmclient.gpt.request.GptChatRequestDto;
 import com.example.webfluxllm.model.llmclient.gpt.response.GptChatResponseDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class GptWebClientService implements LlmWebClientService {
     private final WebClient webClient;
@@ -24,6 +27,12 @@ public class GptWebClientService implements LlmWebClientService {
                 .header("Authorization", "Bearer " + gptApiKey)
                 .bodyValue(gptChatRequestDto)
                 .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, (clientResponse -> {
+                    return clientResponse.bodyToMono(String.class).flatMap(body -> {
+                        log.error("Error Response: {}", body);
+                        return Mono.error(new RuntimeException("Error Response: " + body));
+                    });
+                }))
                 .bodyToMono(GptChatResponseDto.class)
                 .map(LlmChatResponseDto::new);
     }
