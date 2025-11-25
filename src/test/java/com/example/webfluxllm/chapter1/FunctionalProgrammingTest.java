@@ -2,6 +2,7 @@ package com.example.webfluxllm.chapter1;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 
 import java.util.ArrayList;
@@ -52,7 +53,10 @@ public class FunctionalProgrammingTest {
             sink.complete();
         }));
 
-        intFlux.subscribe(data -> System.out.println("webFlux가 구동 중!! : " + data));
+        intFlux.subscribe(data -> {
+            System.out.println("Thread.currentThread().getName() = " + Thread.currentThread().getName());
+            System.out.println("webFlux가 구동 중!! : " + data);
+        });
         System.out.println("Netty 이벤트 루프로 스레드 복귀 !!");
     }
 

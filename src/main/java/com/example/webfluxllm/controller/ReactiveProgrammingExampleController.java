@@ -55,17 +55,19 @@ public class ReactiveProgrammingExampleController {
     @GetMapping("/onenine/flux")
     public Flux<Integer> produceOneToNineFlux() {
         return Flux.<Integer>create(sink -> {
-            for (int i = 1; i <= 9; i++) {
-                try {
-                    log.info("현재 처리하고 있는 스레드 이름 : "  + Thread.currentThread().getName());
-                    Thread.sleep(500);
-                } catch (Exception e) {
+                    for (int i = 1; i <= 9; i++) {
+                        try {
+                            log.info("현재 처리하고 있는 스레드 이름 : " + Thread.currentThread().getName());
+                            Thread.sleep(500);
+                        } catch (Exception e) {
 
-                }
-                sink.next(i);
-            }
-            sink.complete();
-        }).subscribeOn(Schedulers.boundedElastic());
+                        }
+                        sink.next(i);
+                    }
+                    sink.complete();
+                })
+                .subscribeOn(Schedulers.boundedElastic())
+                ;
     }
 
     // 리액티브 스트림 구현체 flux, Mono를 사용하여 발생하는 데이터를 바로바로 리액티브하게 처리

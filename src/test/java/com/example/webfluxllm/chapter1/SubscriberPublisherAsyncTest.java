@@ -21,11 +21,10 @@ public class SubscriberPublisherAsyncTest {
                     System.out.println("처리되고 있는 스레이 이름: " + Thread.currentThread().getName());
                     System.out.println("webFlux가 구동 중!! : " + data);
                 }
-
         );
         System.out.println("Netty 이벤트 루프로 스레드 복귀 !!");
         try {
-            Thread.sleep(5000);
+            Thread.sleep(5000); // 바로 죽어버림
         } catch (InterruptedException e) {
 
         }

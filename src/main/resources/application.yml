@@ -2,8 +2,11 @@ logging:
   level:
     root: INFO
 
+spring:
+  profiles:
+    include: API-KEY
 llm:
   gpt:
     key: ${GPT_API_KEY}
   gemini:
-    key: test
+    key: ${GPT_API_KEY}
