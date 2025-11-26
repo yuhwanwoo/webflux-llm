@@ -12,7 +12,12 @@ public class SubscriberPublisherAsyncTest {
     void produceOneToNineFlux() {
         Flux<Integer> intFlux = Flux.<Integer>create(sink -> {
             for (int i = 1; i <= 9; i++) {
-                sink.next(i);
+                try {
+                    Thread.sleep(500);
+                    sink.next(i);
+                } catch (Exception e) {
+
+                }
             }
             sink.complete();
         }).subscribeOn(Schedulers.boundedElastic());

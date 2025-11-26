@@ -54,7 +54,7 @@ public class FunctionalProgrammingTest {
         }));
 
         intFlux.subscribe(data -> {
-            System.out.println("Thread.currentThread().getName() = " + Thread.currentThread().getName());
+            System.out.println("진행중인 쓰레드명 = " + Thread.currentThread().getName());
             System.out.println("webFlux가 구동 중!! : " + data);
         });
         System.out.println("Netty 이벤트 루프로 스레드 복귀 !!");

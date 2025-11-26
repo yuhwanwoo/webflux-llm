@@ -54,6 +54,7 @@ public class ReactiveProgrammingExampleController {
 
     @GetMapping("/onenine/flux")
     public Flux<Integer> produceOneToNineFlux() {
+        log.info("현재 처리하고 있는 스레드 이름 : " + Thread.currentThread().getName());
         return Flux.<Integer>create(sink -> {
                     for (int i = 1; i <= 9; i++) {
                         try {
@@ -66,7 +67,7 @@ public class ReactiveProgrammingExampleController {
                     }
                     sink.complete();
                 })
-                .subscribeOn(Schedulers.boundedElastic())
+//                .subscribeOn(Schedulers.boundedElastic())
                 ;
     }
 
