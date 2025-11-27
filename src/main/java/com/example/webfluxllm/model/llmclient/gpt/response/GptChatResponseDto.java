@@ -1,5 +1,7 @@
 package com.example.webfluxllm.model.llmclient.gpt.response;
 
+import com.example.webfluxllm.exception.CustomErrorType;
+import com.example.webfluxllm.exception.ErrorTypeException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,6 +23,8 @@ public class GptChatResponseDto implements Serializable {
     private List<GptChoice> choices;
 
     public GptChoice getSingleChoice() {
-        return choices.stream().findFirst().orElseThrow();
+        return choices.stream().findFirst().orElseThrow(() ->
+                new ErrorTypeException("[GptResponse] There is no choices.", CustomErrorType.GPT_RESPONSE_ERROR));
+
     }
 }
