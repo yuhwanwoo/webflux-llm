@@ -1,5 +1,6 @@
 package com.example.webfluxllm.model.user.chat;
 
+import com.example.webfluxllm.exception.CommonError;
 import com.example.webfluxllm.model.llmclient.LlmChatResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,9 +19,11 @@ public class UserChatResponseDto implements Serializable {
     private static final long serialVersionUID = -1958795989277987236L;
 
     private String response;
+    private CommonError error;
 
     public UserChatResponseDto(LlmChatResponseDto llmChatResponseDto) {
         this.response = llmChatResponseDto.getLlmResponse();
+        this.error = llmChatResponseDto.getError();
     }
 
 }

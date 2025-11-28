@@ -1,5 +1,6 @@
 package com.example.webfluxllm.service.llmclient;
 
+import com.example.webfluxllm.exception.CommonError;
 import com.example.webfluxllm.exception.CustomErrorType;
 import com.example.webfluxllm.exception.ErrorTypeException;
 import com.example.webfluxllm.model.llmclient.LlmChatRequestDto;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 @RequiredArgsConstructor
 @Service
