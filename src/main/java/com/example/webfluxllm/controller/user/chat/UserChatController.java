@@ -2,6 +2,7 @@ package com.example.webfluxllm.controller.user.chat;
 
 import com.example.webfluxllm.model.user.chat.UserChatRequestDto;
 import com.example.webfluxllm.model.user.chat.UserChatResponseDto;
+import com.example.webfluxllm.service.user.chat.ChainOfThoughtService;
 import com.example.webfluxllm.service.user.chat.UserChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +18,7 @@ import reactor.core.publisher.Mono;
 public class UserChatController {
 
     private final UserChatService userChatService;
+    private final ChainOfThoughtService chainOfThoughtService;
 
     @PostMapping("/oneshot")
     public Mono<UserChatResponseDto> onShotChat(@RequestBody UserChatRequestDto userChatRequestDto) {
@@ -26,6 +28,11 @@ public class UserChatController {
 
     @PostMapping("/oneshot/stream")
     public Flux<UserChatResponseDto> oneShotChatStream(@RequestBody UserChatRequestDto userChatRequestDto) {
+        return userChatService.getOneShotChatStream(userChatRequestDto);
+    }
+
+    @PostMapping("/cot")
+    public Flux<UserChatResponseDto> chainOfThought(@RequestBody UserChatRequestDto userChatRequestDto) {
         return userChatService.getOneShotChatStream(userChatRequestDto);
     }
 }
