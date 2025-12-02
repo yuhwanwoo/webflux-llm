@@ -28,7 +28,7 @@ public interface LlmWebClientService {
                         return Mono.just(new LlmChatResponseDto(commonError));
                     } else {
                         CommonError commonError = new CommonError(500, exception.getMessage());
-                        return Mono.just(new LlmChatResponseDto(commonError));
+                        return Mono.just(new LlmChatResponseDto(commonError, exception));
                     }
                     
                 });

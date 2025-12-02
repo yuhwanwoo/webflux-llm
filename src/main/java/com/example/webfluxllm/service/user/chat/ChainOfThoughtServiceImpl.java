@@ -1,11 +1,16 @@
 package com.example.webfluxllm.service.user.chat;
 
+import com.example.webfluxllm.exception.CustomErrorType;
+import com.example.webfluxllm.exception.ErrorTypeException;
 import com.example.webfluxllm.model.llmclient.LlmChatRequestDto;
+import com.example.webfluxllm.model.llmclient.LlmChatResponseDto;
 import com.example.webfluxllm.model.llmclient.LlmModel;
 import com.example.webfluxllm.model.llmclient.LlmType;
+import com.example.webfluxllm.model.llmclient.jsonformat.AnswerListResponseDto;
 import com.example.webfluxllm.model.user.chat.UserChatRequestDto;
 import com.example.webfluxllm.model.user.chat.UserChatResponseDto;
 import com.example.webfluxllm.service.llmclient.LlmWebClientService;
+import com.example.webfluxllm.util.ChatUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -59,6 +64,29 @@ public class ChainOfThoughtServiceImpl implements ChainOfThoughtService {
             LlmChatRequestDto llmChatRequestDto = new LlmChatRequestDto(establishingThoughtChainPrompt, establishingThoughtChainSystemPrompt, true, requestModel);
 
             LlmWebClientService llmWebClientService = llmWebClientServiceMap.get(requestModel.getLlmType());
+            Mono<AnswerListResponseDto> conStepListMono = llmWebClientService.getChatCompletion(llmChatRequestDto)
+                    .map(response -> {
+                        String llmResponse = response.getLlmResponse();
+                        String extractJsonString = ChatUtils.extractJsonString(llmResponse);
+                        try {
+                            AnswerListResponseDto answerListResponseDto = objectMapper.readValue(extractJsonString, AnswerListResponseDto.class);
+//                            sink.next(new UserChatResponseDto("필요한 작업 단계 분석", answerListResponseDto.toString()));
+                            return answerListResponseDto;
+                        } catch (JsonProcessingException e) {
+                            throw new ErrorTypeException("[JsonParseError] json parse error. extractedJsonString: " + extractJsonString, CustomErrorType.LLM_RESPONSE_JSON_PARSE_ERROR);
+                        }
+                    }).doOnNext(publishedData -> sink.next(new UserChatResponseDto("필요한 작업 단계 분석", publishedData.toString())));
+            Flux<String> conStepFlux = conStepListMono.flatMapMany(cotStepList -> Flux.fromIterable(cotStepList.getAnswerList()));
+            Flux<String> analyzedCotStep = conStepFlux.flatMapSequential(cotStep -> {
+                        String cotStepRequestPrompt = String.format("""
+                                다음은 사용자의 입력입니다: %s
+                                
+                                사용자의 요구를 다음 단계에 따라 분석해주세요: %s
+                                """, userRequest, cotStep);
+                        return llmWebClientService.getChatCompletionWithCatchException(new LlmChatRequestDto(cotStepRequestPrompt, "", false, requestModel))
+                                .map(LlmChatResponseDto::getLlmResponse);
+                    })
+                    .doOnNext(publishedData -> sink.next(new UserChatResponseDto("단계별 분석", publishedData)));
 
         });
     }

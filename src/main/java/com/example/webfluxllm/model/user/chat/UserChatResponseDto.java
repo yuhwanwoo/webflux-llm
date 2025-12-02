@@ -22,6 +22,10 @@ public class UserChatResponseDto implements Serializable {
     private String title;
     private CommonError error;
 
+    public UserChatResponseDto(String title, String response) {
+        this.title = title;
+        this.response = response;
+    }
     public UserChatResponseDto(LlmChatResponseDto llmChatResponseDto) {
         this.title = llmChatResponseDto.getTitle();
         this.response = llmChatResponseDto.getLlmResponse();
