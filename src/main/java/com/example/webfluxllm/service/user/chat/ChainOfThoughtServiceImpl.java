@@ -78,16 +78,33 @@ public class ChainOfThoughtServiceImpl implements ChainOfThoughtService {
                     }).doOnNext(publishedData -> sink.next(new UserChatResponseDto("필요한 작업 단계 분석", publishedData.toString())));
             Flux<String> conStepFlux = conStepListMono.flatMapMany(cotStepList -> Flux.fromIterable(cotStepList.getAnswerList()));
             Flux<String> analyzedCotStep = conStepFlux.flatMapSequential(cotStep -> {
-                        String cotStepRequestPrompt = String.format("""
-                                다음은 사용자의 입력입니다: %s
-                                
-                                사용자의 요구를 다음 단계에 따라 분석해주세요: %s
-                                """, userRequest, cotStep);
-                        return llmWebClientService.getChatCompletionWithCatchException(new LlmChatRequestDto(cotStepRequestPrompt, "", false, requestModel))
-                                .map(LlmChatResponseDto::getLlmResponse);
-                    })
-                    .doOnNext(publishedData -> sink.next(new UserChatResponseDto("단계별 분석", publishedData)));
+                String cotStepRequestPrompt = String.format("""
+                        다음은 사용자의 입력입니다: %s
+                        
+                        사용자의 요구를 다음 단계에 따라 분석해주세요: %s
+                        """, userRequest, cotStep);
+                return llmWebClientService.getChatCompletionWithCatchException(new LlmChatRequestDto(cotStepRequestPrompt, "", false, requestModel))
+                        .map(LlmChatResponseDto::getLlmResponse);
+            }).doOnNext(publishedData -> sink.next(new UserChatResponseDto("단계별 분석", publishedData)));
 
+            Mono<String> finalAnswerMono = analyzedCotStep.collectList().flatMap(stepPromptList -> {
+                String concatStepPrompt = String.join("\n", stepPromptList);
+                String finalAnswerPrompt = String.format("""
+                        다음은 사용자의 입력입니다 : %s
+                        아래 사항들을 참고, 분석하여 사용자의 입력에 대한 최종 답변을 해주세요:
+                        %s
+                        """, userRequest, concatStepPrompt);
+                return llmWebClientService.getChatCompletionWithCatchException(new LlmChatRequestDto(finalAnswerPrompt, "", false, requestModel))
+                        .map(LlmChatResponseDto::getLlmResponse);
+            });
+
+            finalAnswerMono.subscribe(finalAnswer -> {
+                sink.next(new UserChatResponseDto("최종 응답", finalAnswer));
+                sink.complete();
+            }, error -> {
+                log.error("[COT] cot response error", error);
+                sink.error(error);
+            });
         });
     }
 }
